@@ -17,7 +17,7 @@
   - Pilih kategori seperti "Makanan", "Hiburan", "Belanja", dll.
 - **Format Tanggal Dinamis**:
   - Tampilkan tanggal transaksi dengan format seperti "Hari ini", "Kemarin", atau "7 hari lalu".
-- **Statistik Pengeluaran** *(Opsional jika ada)*:
+- **Statistik Pengeluaran** *(Belum diimplementasi)*:
   - Analisis pengeluaran berdasarkan kategori atau rentang waktu tertentu.
 - **UI Modern**:
   - Desain antarmuka yang responsif dengan gradasi warna dan elemen yang menarik.
