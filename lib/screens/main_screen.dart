@@ -48,51 +48,70 @@ class MainScreenState extends State<MainScreen> {
   }
 
   IconData _getCategoryIcon(custom.TransactionCategory category) {
-  switch (category) {
-    case custom.TransactionCategory.entertainment:
-      return Icons.movie;
-    case custom.TransactionCategory.food:
-      return Icons.fastfood;
-    case custom.TransactionCategory.home:
-      return Icons.home;
-    case custom.TransactionCategory.pet:
-      return Icons.pets;
-    case custom.TransactionCategory.shopping:
-      return Icons.shopping_bag;
-    case custom.TransactionCategory.tech:
-      return Icons.devices;
-    case custom.TransactionCategory.travel:
-      return Icons.flight;
-    case custom.TransactionCategory.other:
-      return Icons.category;
+    switch (category) {
+      case custom.TransactionCategory.entertainment:
+        return Icons.movie;
+      case custom.TransactionCategory.food:
+        return Icons.fastfood;
+      case custom.TransactionCategory.home:
+        return Icons.home;
+      case custom.TransactionCategory.pet:
+        return Icons.pets;
+      case custom.TransactionCategory.shopping:
+        return Icons.shopping_bag;
+      case custom.TransactionCategory.tech:
+        return Icons.devices;
+      case custom.TransactionCategory.travel:
+        return Icons.flight;
+      case custom.TransactionCategory.other:
+        return Icons.category;
+    }
   }
-}
 
-Color _getCategoryColor(custom.TransactionCategory category) {
-  switch (category) {
-    case custom.TransactionCategory.entertainment:
-      return Colors.purple;
-    case custom.TransactionCategory.food:
-      return Colors.orange;
-    case custom.TransactionCategory.home:
-      return Colors.blue;
-    case custom.TransactionCategory.pet:
-      return Colors.brown;
-    case custom.TransactionCategory.shopping:
-      return Colors.green;
-    case custom.TransactionCategory.tech:
-      return Colors.grey;
-    case custom.TransactionCategory.travel:
-      return Colors.teal;
-    case custom.TransactionCategory.other:
-      return Colors.black;
+  Color _getCategoryColor(custom.TransactionCategory category) {
+    switch (category) {
+      case custom.TransactionCategory.entertainment:
+        return Colors.purple;
+      case custom.TransactionCategory.food:
+        return Colors.orange;
+      case custom.TransactionCategory.home:
+        return Colors.blue;
+      case custom.TransactionCategory.pet:
+        return Colors.brown;
+      case custom.TransactionCategory.shopping:
+        return Colors.green;
+      case custom.TransactionCategory.tech:
+        return Colors.grey;
+      case custom.TransactionCategory.travel:
+        return Colors.teal;
+      case custom.TransactionCategory.other:
+        return Colors.black;
+    }
   }
-}
 
   void refreshData() {
     setState(() {
       _dataFuture = _fetchData();
     });
+  }
+
+  String getFormattedDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date).inDays;
+
+    if (difference == 0) {
+      return 'Hari ini';
+    } else if (difference == -1) {
+      return 'Besok';
+    } else if (difference == 1) {
+      return 'Kemarin';
+    } else if (difference > 1 && difference <= 7) {
+      return '$difference hari lalu';
+    } else if (difference < -1 && difference >= -7) {
+      return '${-difference} hari lagi';
+    } else {
+      return DateFormat('dd-MM-yyyy').format(date);
+    }
   }
 
   @override
@@ -321,86 +340,88 @@ Color _getCategoryColor(custom.TransactionCategory category) {
                     itemCount: transactions.length,
                     itemBuilder: (context, index) {
                       final transaction = transactions[index];
-                      return Dismissible(
-                        key: Key(transaction.id.toString()),
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        confirmDismiss: (direction) async {
-                          if (direction == DismissDirection.endToStart) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Transaksi berhasil dihapus')),
-                              );
-                            }
-                            await DatabaseHelper.instance.deleteTransaction(transaction.id!);
-                            refreshData();
-                            return true;
-                          }
-                          return false;
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
+                      return Column(
+                        children: [
+                          Dismissible(
+                            key: Key(transaction.id.toString()),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundColor: _getCategoryColor(transaction.category),
-                                        child: Icon(
-                                          _getCategoryIcon(transaction.category),
-                                          color: _getCategoryColor(transaction.category).computeLuminance() > 0.5
-                                          ? Colors.black
-                                          : Colors.white,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        transaction.name,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '${transaction.type == 'Income' ? '+ ' : '- '}${currencyFormatter.format(transaction.amount)}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: transaction.type == 'Income' ? Colors.green : Colors.red,
+                            confirmDismiss: (direction) async {
+                              if (direction == DismissDirection.endToStart) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Transaksi berhasil dihapus')),
+                                  );
+                                }
+                                await DatabaseHelper.instance.deleteTransaction(transaction.id!);
+                                refreshData();
+                                return true;
+                              }
+                              return false;
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: _getCategoryColor(transaction.category),
+                                          child: Icon(
+                                            _getCategoryIcon(transaction.category),
+                                            color: _getCategoryColor(transaction.category).computeLuminance() > 0.5
+                                            ? Colors.black
+                                            : Colors.white,
                                           ),
                                         ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        transaction.date.toLocal().toString().split(' ')[0],
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          transaction.name,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${transaction.type == 'Income' ? '+ ' : '- '}${currencyFormatter.format(transaction.amount)}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: transaction.type == 'Income' ? Colors.green : Colors.red,
+                                            ),
+                                          ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          getFormattedDate(transaction.date),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                        ],
                       );
                     },
                   ),
