@@ -1,6 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:expenses_tracker/models/transaction.dart' as custom;
+import 'package:expenses_tracker/models/transaction.dart' as transaksi;
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -39,14 +39,16 @@ class DatabaseHelper {
       )
     ''');
   }
+
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE transactions ADD COLUMN category TEXT NOT NULL DEFAULT "other"');
+      await db.execute(
+        'ALTER TABLE transactions ADD COLUMN category TEXT NOT NULL DEFAULT "other"',
+      );
     }
   }
 
-
-  Future<int> insertTransaction(custom.Transaction transaction) async {
+  Future<int> insertTransaction(transaksi.Transaction transaction) async {
     final db = await instance.database;
     return await db.insert('transactions', {
       ...transaction.toMap(),
@@ -54,22 +56,28 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<custom.Transaction>> fetchTransactions() async {
+  Future<List<transaksi.Transaction>> fetchTransactions() async {
     final db = await instance.database;
     final result = await db.query(
       'transactions',
       orderBy: 'date DESC, created_at DESC',
     );
-    return result.map((map) => custom.Transaction.fromMap(map)).toList();
+    return result.map((map) => transaksi.Transaction.fromMap(map)).toList();
+  }
+
+  Future<int> updateTransaction(transaksi.Transaction transaction) async {
+    final db = await instance.database;
+    return await db.update(
+      'transactions',
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
   }
 
   Future<int> deleteTransaction(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      'transactions',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
   }
 
   Future close() async {

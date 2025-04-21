@@ -5,14 +5,16 @@ import 'package:expenses_tracker/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AddExpense extends StatefulWidget {
-  const AddExpense({super.key});
+class EditExpense extends StatefulWidget {
+  final Transaction transaction;
+
+  const EditExpense({super.key, required this.transaction});
 
   @override
-  State<AddExpense> createState() => _AddExpenseState();
+  State<EditExpense> createState() => _EditExpenseState();
 }
 
-class _AddExpenseState extends State<AddExpense> {
+class _EditExpenseState extends State<EditExpense> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final NumberFormat _currencyFormatter = NumberFormat.currency(
@@ -21,17 +23,21 @@ class _AddExpenseState extends State<AddExpense> {
     decimalDigits: 0,
   );
 
-  String _transactionType = 'Pengeluaran';
-  String _name = '';
-  TransactionCategory _selectedCategory = TransactionCategory.other;
-  double _amount = 0.0;
-  DateTime? _selectedDate;
+  late String _transactionType;
+  late String _name;
+  late TransactionCategory _selectedCategory;
+  late double _amount;
+  late DateTime _selectedDate;
 
   @override
   void initState() {
     super.initState();
-    _amountController.text = _currencyFormatter.format(0);
-    _selectedDate = DateTime.now();
+    _transactionType = widget.transaction.type == 'Expense' ? 'Pengeluaran' : 'Pemasukan';
+    _name = widget.transaction.name;
+    _selectedCategory = widget.transaction.category;
+    _amount = widget.transaction.amount;
+    _selectedDate = widget.transaction.date;
+    _amountController.text = _currencyFormatter.format(_amount);
   }
 
   @override
@@ -43,7 +49,7 @@ class _AddExpenseState extends State<AddExpense> {
   void _pickDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
@@ -71,33 +77,29 @@ class _AddExpenseState extends State<AddExpense> {
     }
   }
 
-  void _saveTransaction() async {
+  void _updateTransaction() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Tanggal harus dipilih')));
-        return;
-      }
-
-      if (_selectedDate!.isAfter(DateTime.now())) {
+      if (_selectedDate.isAfter(DateTime.now())) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tanggal maksimal adalah hari ini')),
         );
         return;
       }
+    }
 
-      final transaction = Transaction(
+    if (_formKey.currentState!.validate()) {
+      final updatedTransaction = Transaction(
+        id: widget.transaction.id,
         name: _name,
         category: _selectedCategory,
         type: _transactionType == 'Pengeluaran' ? 'Expense' : 'Income',
         amount: _amount,
-        date: _selectedDate!,
+        date: _selectedDate,
       );
-      await DatabaseHelper.instance.insertTransaction(transaction);
+      await DatabaseHelper.instance.updateTransaction(updatedTransaction);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transaksi berhasil ditambahkan')),
+        const SnackBar(content: Text('Transaksi berhasil diperbarui')),
       );
       Navigator.pop(context, true);
     }
@@ -105,21 +107,21 @@ class _AddExpenseState extends State<AddExpense> {
 
   IconData _getCategoryIcon(TransactionCategory category) {
     switch (category) {
-      case  TransactionCategory.entertainment:
+      case TransactionCategory.entertainment:
         return Icons.movie;
-      case  TransactionCategory.food:
+      case TransactionCategory.food:
         return Icons.fastfood;
-      case  TransactionCategory.home:
+      case TransactionCategory.home:
         return Icons.home;
-      case  TransactionCategory.pet:
+      case TransactionCategory.pet:
         return Icons.pets;
-      case  TransactionCategory.shopping:
+      case TransactionCategory.shopping:
         return Icons.shopping_bag;
-      case  TransactionCategory.tech:
+      case TransactionCategory.tech:
         return Icons.devices;
-      case  TransactionCategory.travel:
+      case TransactionCategory.travel:
         return Icons.flight;
-      case  TransactionCategory.other:
+      case TransactionCategory.other:
         return Icons.category;
     }
   }
@@ -145,14 +147,12 @@ class _AddExpenseState extends State<AddExpense> {
     }
   }
 
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Tambah Transaksi',
+          'Edit Transaksi',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -174,7 +174,7 @@ class _AddExpenseState extends State<AddExpense> {
                     controller: _amountController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(28)),
+                        borderRadius: BorderRadius.circular(28),
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
@@ -187,7 +187,7 @@ class _AddExpenseState extends State<AddExpense> {
                       ),
                       filled: true,
                       fillColor: Colors.white,
-                      hoverColor: Colors.white
+                      hoverColor: Colors.white,
                     ),
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
@@ -220,10 +220,10 @@ class _AddExpenseState extends State<AddExpense> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   DropdownButtonFormField<String>(
                     isExpanded: true,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                     value: _transactionType,
                     items: const [
                       DropdownMenuItem(
@@ -241,9 +241,9 @@ class _AddExpenseState extends State<AddExpense> {
                       });
                     },
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
-                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderSide: BorderSide(color: Colors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -256,14 +256,15 @@ class _AddExpenseState extends State<AddExpense> {
                       filled: true,
                       fillColor: Colors.white,
                       hoverColor: Colors.white,
-                      labelText: 'Jenis Transaksi'
+                      labelText: 'Jenis Transaksi',
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
+                    initialValue: _name,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
@@ -289,7 +290,7 @@ class _AddExpenseState extends State<AddExpense> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
@@ -302,13 +303,11 @@ class _AddExpenseState extends State<AddExpense> {
                         children: [
                           Expanded(
                             child: Text(
-                              _selectedDate == null
-                                  ? 'Hari ini'
-                                  : getFormattedDate(_selectedDate!),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              getFormattedDate(_selectedDate),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           TextButton(
@@ -316,16 +315,17 @@ class _AddExpenseState extends State<AddExpense> {
                             child: Text(
                               'Pilih Tanggal',
                               style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 foreground: Paint()
-                                ..shader = LinearGradient(
-                                  colors: [
-                                    Theme.of(context).colorScheme.primary,
-                                    Theme.of(context).colorScheme.secondary,
-                                    Theme.of(context).colorScheme.tertiary,
-                                  ],
-                                ).createShader(const Rect.fromLTWH(0.0, 0.0, 10.0, 0.0)),
-                              ),
+                                  ..shader = LinearGradient(
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary,
+                                      Theme.of(context).colorScheme.secondary,
+                                      Theme.of(context).colorScheme.tertiary,
+                                    ],
+                                  ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                              ),  
                             ),
                           ),
                         ],
@@ -336,29 +336,29 @@ class _AddExpenseState extends State<AddExpense> {
                   DropdownButtonFormField<TransactionCategory>(
                     value: _selectedCategory,
                     items: TransactionCategory.values.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  _getCategoryIcon(category),
-                                  color: _getCategoryColor(category),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(category.name),
-                              ],
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Row(
+                          children: [
+                            Icon(
+                              _getCategoryIcon(category),
+                              color: _getCategoryColor(category),
                             ),
-                          );
-                        }).toList(),
+                            const SizedBox(width: 8),
+                            Text(category.name),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedCategory = value!;
                       });
                     },
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
-                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderSide: BorderSide(color: Colors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -400,11 +400,11 @@ class _AddExpenseState extends State<AddExpense> {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: _saveTransaction,
+                        onTap: _updateTransaction,
                         borderRadius: BorderRadius.circular(12),
-                        child: Center(
-                          child: const Text(
-                            'Simpan',
+                        child: const Center(
+                          child: Text(
+                            'Update',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:expenses_tracker/helpers/database_helper.dart';
 import 'package:expenses_tracker/models/transaction.dart' as custom;
+import 'package:expenses_tracker/screens/edit_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -131,7 +132,8 @@ class MainScreenState extends State<MainScreen> {
             }
 
             final data = snapshot.data!;
-            final transactions = data['transactions'] as List<custom.Transaction>;
+            final transactions =
+                data['transactions'] as List<custom.Transaction>;
             final totalIncome = data['totalIncome'] as double;
             final totalExpense = data['totalExpense'] as double;
             final totalBalance = data['totalBalance'] as double;
@@ -176,14 +178,28 @@ class MainScreenState extends State<MainScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    foreground: Paint()
-                                    ..shader = LinearGradient(
-                                      colors: [
-                                        Theme.of(context).colorScheme.primary,
-                                        Theme.of(context).colorScheme.secondary,
-                                        Theme.of(context).colorScheme.tertiary,
-                                        ],
-                                        ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                                    foreground:
+                                        Paint()
+                                          ..shader = LinearGradient(
+                                            colors: [
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.tertiary,
+                                            ],
+                                          ).createShader(
+                                            const Rect.fromLTWH(
+                                              0.0,
+                                              0.0,
+                                              200.0,
+                                              70.0,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ],
@@ -209,16 +225,28 @@ class MainScreenState extends State<MainScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                foreground: Paint()
-                                ..shader = LinearGradient(
-                                  colors: [
-                                    Theme.of(context).colorScheme.primary,
-                                    Theme.of(context).colorScheme.secondary,
-                                    Theme.of(context).colorScheme.tertiary,
-                                  ],
-                                ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                              )
-                            )
+                                foreground:
+                                    Paint()
+                                      ..shader = LinearGradient(
+                                        colors: [
+                                          Theme.of(context).colorScheme.primary,
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ],
+                                      ).createShader(
+                                        const Rect.fromLTWH(
+                                          0.0,
+                                          0.0,
+                                          200.0,
+                                          70.0,
+                                        ),
+                                      ),
+                              ),
+                            ),
                           ),
                         );
                       },
@@ -270,7 +298,9 @@ class MainScreenState extends State<MainScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 20.0),
+                          vertical: 12.0,
+                          horizontal: 20.0,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -345,19 +375,51 @@ class MainScreenState extends State<MainScreen> {
                           Dismissible(
                             key: Key(transaction.id.toString()),
                             background: Container(
+                              color: Colors.blue,
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            secondaryBackground: Container(
                               color: Colors.red,
                               alignment: Alignment.centerRight,
                               padding: const EdgeInsets.only(right: 20),
-                              child: const Icon(Icons.delete, color: Colors.white),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                             confirmDismiss: (direction) async {
-                              if (direction == DismissDirection.endToStart) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Transaksi berhasil dihapus')),
-                                  );
+                              if (direction == DismissDirection.startToEnd) {
+                                // Edit transaction
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => EditExpense(
+                                          transaction: transaction,
+                                        ),
+                                  ),
+                                );
+                                if (result == true) {
+                                  refreshData();
                                 }
-                                await DatabaseHelper.instance.deleteTransaction(transaction.id!);
+                                return false;
+                              } else if (direction ==
+                                  DismissDirection.endToStart) {
+                                // Delete transaction
+                                await DatabaseHelper.instance.deleteTransaction(
+                                  transaction.id!,
+                                );
                                 refreshData();
                                 return true;
                               }
@@ -371,17 +433,26 @@ class MainScreenState extends State<MainScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         CircleAvatar(
-                                          backgroundColor: _getCategoryColor(transaction.category),
+                                          backgroundColor: _getCategoryColor(
+                                            transaction.category,
+                                          ),
                                           child: Icon(
-                                            _getCategoryIcon(transaction.category),
-                                            color: _getCategoryColor(transaction.category).computeLuminance() > 0.5
-                                            ? Colors.black
-                                            : Colors.white,
+                                            _getCategoryIcon(
+                                              transaction.category,
+                                            ),
+                                            color:
+                                                _getCategoryColor(
+                                                          transaction.category,
+                                                        ).computeLuminance() >
+                                                        0.5
+                                                    ? Colors.black
+                                                    : Colors.white,
                                           ),
                                         ),
                                         const SizedBox(width: 4),
@@ -395,16 +466,20 @@ class MainScreenState extends State<MainScreen> {
                                       ],
                                     ),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
                                           '${transaction.type == 'Income' ? '+ ' : '- '}${currencyFormatter.format(transaction.amount)}',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
-                                            color: transaction.type == 'Income' ? Colors.green : Colors.red,
-                                            ),
+                                            color:
+                                                transaction.type == 'Income'
+                                                    ? Colors.green
+                                                    : Colors.red,
                                           ),
+                                        ),
                                         const SizedBox(height: 2),
                                         Text(
                                           getFormattedDate(transaction.date),
