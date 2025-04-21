@@ -20,8 +20,9 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -30,6 +31,7 @@ class DatabaseHelper {
       CREATE TABLE transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT "other",
         type TEXT NOT NULL,
         amount REAL NOT NULL,
         date TEXT NOT NULL,
@@ -37,6 +39,12 @@ class DatabaseHelper {
       )
     ''');
   }
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE transactions ADD COLUMN category TEXT NOT NULL DEFAULT "other"');
+    }
+  }
+
 
   Future<int> insertTransaction(custom.Transaction transaction) async {
     final db = await instance.database;

@@ -12,7 +12,7 @@ class StatsScreen extends StatelessWidget{
         child: Column(
           children: [
             Text(
-              'Transaction',
+              'Transaksi',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold

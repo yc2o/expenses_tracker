@@ -65,7 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
           );
 
           if (result == true && index == 0) {
-            final mainScreenState = context.findAncestorStateOfType<MainScreenState>();
             mainScreenKey.currentState?.refreshData();
           }
         },

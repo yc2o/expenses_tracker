@@ -14,7 +14,7 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   final currencyFormatter = NumberFormat.currency(
     locale: 'id_ID',
-    symbol: 'Rp',
+    symbol: 'Rp. ',
     decimalDigits: 0,
   );
 
@@ -46,6 +46,48 @@ class MainScreenState extends State<MainScreen> {
       'totalBalance': totalIncome - totalExpense,
     };
   }
+
+  IconData _getCategoryIcon(custom.TransactionCategory category) {
+  switch (category) {
+    case custom.TransactionCategory.entertainment:
+      return Icons.movie;
+    case custom.TransactionCategory.food:
+      return Icons.fastfood;
+    case custom.TransactionCategory.home:
+      return Icons.home;
+    case custom.TransactionCategory.pet:
+      return Icons.pets;
+    case custom.TransactionCategory.shopping:
+      return Icons.shopping_bag;
+    case custom.TransactionCategory.tech:
+      return Icons.devices;
+    case custom.TransactionCategory.travel:
+      return Icons.flight;
+    case custom.TransactionCategory.other:
+      return Icons.category;
+  }
+}
+
+Color _getCategoryColor(custom.TransactionCategory category) {
+  switch (category) {
+    case custom.TransactionCategory.entertainment:
+      return Colors.purple;
+    case custom.TransactionCategory.food:
+      return Colors.orange;
+    case custom.TransactionCategory.home:
+      return Colors.blue;
+    case custom.TransactionCategory.pet:
+      return Colors.brown;
+    case custom.TransactionCategory.shopping:
+      return Colors.green;
+    case custom.TransactionCategory.tech:
+      return Colors.grey;
+    case custom.TransactionCategory.travel:
+      return Colors.teal;
+    case custom.TransactionCategory.other:
+      return Colors.black;
+  }
+}
 
   void refreshData() {
     setState(() {
@@ -99,16 +141,36 @@ class MainScreenState extends State<MainScreen> {
                         const SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Welcome Back!',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Halo',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Browsky!',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    foreground: Paint()
+                                    ..shader = LinearGradient(
+                                      colors: [
+                                        Theme.of(context).colorScheme.primary,
+                                        Theme.of(context).colorScheme.secondary,
+                                        Theme.of(context).colorScheme.tertiary,
+                                        ],
+                                        ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Your Expenses Tracker',
+                            const Text(
+                              'Aplikasi Expense Tracker',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
@@ -119,7 +181,28 @@ class MainScreenState extends State<MainScreen> {
                       ],
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Yeremia Christian Candra Octaviano - 3123600034',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                foreground: Paint()
+                                ..shader = LinearGradient(
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary,
+                                    Theme.of(context).colorScheme.secondary,
+                                    Theme.of(context).colorScheme.tertiary,
+                                  ],
+                                ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                              )
+                            )
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.settings_rounded),
                     ),
                   ],
@@ -150,7 +233,7 @@ class MainScreenState extends State<MainScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Total Balance',
+                        'Jumlah Saldo',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white,
@@ -159,7 +242,7 @@ class MainScreenState extends State<MainScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Rp. ${totalBalance.toStringAsFixed(2)}',
+                        '${currencyFormatter.format(totalBalance)},-',
                         style: const TextStyle(
                           fontSize: 40,
                           color: Colors.white,
@@ -175,7 +258,7 @@ class MainScreenState extends State<MainScreen> {
                             Column(
                               children: [
                                 const Text(
-                                  'Income',
+                                  'Pemasukan',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.white,
@@ -183,7 +266,7 @@ class MainScreenState extends State<MainScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Rp. ${totalIncome.toStringAsFixed(2)}',
+                                  '${currencyFormatter.format(totalIncome)},-',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
@@ -195,7 +278,7 @@ class MainScreenState extends State<MainScreen> {
                             Column(
                               children: [
                                 const Text(
-                                  'Expenses',
+                                  'Pengeluaran',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.white,
@@ -203,7 +286,7 @@ class MainScreenState extends State<MainScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Rp. ${totalExpense.toStringAsFixed(2)}',
+                                  '${currencyFormatter.format(totalExpense)},-',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
@@ -223,22 +306,11 @@ class MainScreenState extends State<MainScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Transactions',
+                      'Transaksimu',
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        'View All',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.outline,
-                          fontWeight: FontWeight.w400,
-                        ),
                       ),
                     ),
                   ],
@@ -259,10 +331,12 @@ class MainScreenState extends State<MainScreen> {
                         ),
                         confirmDismiss: (direction) async {
                           if (direction == DismissDirection.endToStart) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Transaksi berhasil dihapus')),
+                              );
+                            }
                             await DatabaseHelper.instance.deleteTransaction(transaction.id!);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Transaksi berhasil dihapus')),
-                            );
                             refreshData();
                             return true;
                           }
@@ -280,17 +354,39 @@ class MainScreenState extends State<MainScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  Row(
                                     children: [
+                                      CircleAvatar(
+                                        backgroundColor: _getCategoryColor(transaction.category),
+                                        child: Icon(
+                                          _getCategoryIcon(transaction.category),
+                                          color: _getCategoryColor(transaction.category).computeLuminance() > 0.5
+                                          ? Colors.black
+                                          : Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
                                       Text(
                                         transaction.name,
                                         style: const TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '${transaction.type == 'Income' ? '+ ' : '- '}${currencyFormatter.format(transaction.amount)}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: transaction.type == 'Income' ? Colors.green : Colors.red,
+                                          ),
+                                        ),
+                                      const SizedBox(height: 2),
                                       Text(
                                         transaction.date.toLocal().toString().split(' ')[0],
                                         style: const TextStyle(
@@ -299,14 +395,6 @@ class MainScreenState extends State<MainScreen> {
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  Text(
-                                    '${transaction.type == 'Income' ? '+ ' : '- '}${currencyFormatter.format(transaction.amount)},-',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: transaction.type == 'Income' ? Colors.green : Colors.red,
-                                    ),
                                   ),
                                 ],
                               ),
