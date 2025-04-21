@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:expenses_tracker/screens/add_expense.dart';
 import 'package:expenses_tracker/screens/main_screen.dart';
-import 'package:expenses_tracker/screens/stats.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget{
@@ -21,6 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /*
+      Di-comment dulu yaa
+
       bottomNavigationBar: ClipRRect(
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(30)
@@ -54,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      */
+      body: MainScreen(key: mainScreenKey),      
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push<bool>(
@@ -87,10 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: const Icon(Icons.add),
         ),
-      ),
-      body: index == 0
-        ? MainScreen(key: mainScreenKey)
-        : const StatsScreen()
+      )
     );
   }
 }
