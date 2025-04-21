@@ -400,7 +400,6 @@ class MainScreenState extends State<MainScreen> {
                             ),
                             confirmDismiss: (direction) async {
                               if (direction == DismissDirection.startToEnd) {
-                                // Edit transaction
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -416,7 +415,6 @@ class MainScreenState extends State<MainScreen> {
                                 return false;
                               } else if (direction ==
                                   DismissDirection.endToStart) {
-                                // Delete transaction
                                 await DatabaseHelper.instance.deleteTransaction(
                                   transaction.id!,
                                 );
