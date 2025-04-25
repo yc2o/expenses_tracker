@@ -55,7 +55,8 @@ expenses_tracker/
    git clone https://github.com/yc2o/expenses_tracker.git
    cd expenses_tracker
    ```
-   2. **Install Dependensi**:
+
+2. **Install Dependensi**:
    Jalankan perintah berikut untuk menginstal semua dependensi yang diperlukan:
    ```
    flutter pub get
